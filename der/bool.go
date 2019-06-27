@@ -19,12 +19,12 @@ func boolDecode(data []byte) (bool, error) {
 	return (data[0] != 0), nil
 }
 
-func boolSerialize(v reflect.Value) (*Node, error) {
-	return BoolSerialize(v.Bool(), -1)
+func boolSerialize(v reflect.Value, tag int) (*Node, error) {
+	return BoolSerialize(v.Bool(), tag)
 }
 
-func boolDeserialize(v reflect.Value, n *Node) error {
-	b, err := BoolDeserialize(n, -1)
+func boolDeserialize(v reflect.Value, n *Node, tag int) error {
+	b, err := BoolDeserialize(n, tag)
 	if err != nil {
 		return err
 	}

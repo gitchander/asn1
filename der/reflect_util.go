@@ -9,8 +9,10 @@ func isNil(v interface{}) bool {
 }
 
 func valueSetZero(v reflect.Value) {
-	zero := reflect.Zero(v.Type())
-	v.Set(zero)
+	if v.CanSet() {
+		zero := reflect.Zero(v.Type())
+		v.Set(zero)
+	}
 }
 
 func valueMake(v reflect.Value) {

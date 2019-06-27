@@ -4,8 +4,6 @@ import (
 	"encoding/binary"
 	"math"
 	"reflect"
-
-	"github.com/gitchander/asn1/der/coda"
 )
 
 var byteOrder = binary.BigEndian
@@ -96,58 +94,17 @@ func uintDecode(data []byte) (uint64, error) {
 	return 0, ErrorUnmarshalBytes{data, reflect.Uint}
 }
 
-func uintSerialize(v reflect.Value) (*Node, error) {
-
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_INTEGER,
-		IsCompound: false,
-	}
-
-	n := new(Node)
-	err := n.setHeader(h)
-	if err != nil {
-		return nil, err
-	}
-
-	n.data = uintEncode(v.Uint())
-
-	return n, nil
+func uintSerialize(v reflect.Value, tag int) (*Node, error) {
+	return UintSerialize(v.Uint(), tag)
 }
 
-func intSerialize(v reflect.Value) (*Node, error) {
-
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_INTEGER,
-		IsCompound: false,
-	}
-
-	n := new(Node)
-	err := n.setHeader(h)
-	if err != nil {
-		return nil, err
-	}
-
-	n.data = intEncode(v.Int())
-
-	return n, nil
+func intSerialize(v reflect.Value, tag int) (*Node, error) {
+	return IntSerialize(v.Int(), tag)
 }
 
-func uintDeserialize(v reflect.Value, n *Node) error {
+func uintDeserialize(v reflect.Value, n *Node, tag int) error {
 
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_INTEGER,
-		IsCompound: false,
-	}
-
-	err := n.checkHeader(h)
-	if err != nil {
-		return err
-	}
-
-	x, err := uintDecode(n.data)
+	x, err := UintDeserialize(n, tag)
 	if err != nil {
 		return err
 	}
@@ -176,20 +133,9 @@ func uintDeserialize(v reflect.Value, n *Node) error {
 	return nil
 }
 
-func intDeserialize(v reflect.Value, n *Node) error {
+func intDeserialize(v reflect.Value, n *Node, tag int) error {
 
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_INTEGER,
-		IsCompound: false,
-	}
-
-	err := n.checkHeader(h)
-	if err != nil {
-		return err
-	}
-
-	x, err := intDecode(n.data)
+	x, err := IntDeserialize(n, tag)
 	if err != nil {
 		return err
 	}
@@ -218,7 +164,7 @@ func intDeserialize(v reflect.Value, n *Node) error {
 	return nil
 }
 
-func IntSerialize(tag int, x int64) (*Node, error) {
+func IntSerialize(x int64, tag int) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
 	if tag < 0 {
@@ -248,7 +194,7 @@ func IntDeserialize(n *Node, tag int) (int64, error) {
 	return n.GetInt()
 }
 
-func UintSerialize(tag int, x uint64) (*Node, error) {
+func UintSerialize(x uint64, tag int) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
 	if tag < 0 {

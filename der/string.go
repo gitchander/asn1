@@ -1,5 +1,24 @@
 package der
 
+import (
+	"errors"
+	"reflect"
+	"unicode/utf8"
+)
+
+func stringSerialize(v reflect.Value, tag int) (*Node, error) {
+	return StringSerialize(v.String(), tag)
+}
+
+func stringDeserialize(v reflect.Value, n *Node, tag int) error {
+	s, err := StringDeserialize(n, tag)
+	if err != nil {
+		return err
+	}
+	v.SetString(s)
+	return nil
+}
+
 func StringSerialize(s string, tag int) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
@@ -27,5 +46,14 @@ func StringDeserialize(n *Node, tag int) (string, error) {
 		return "", err
 	}
 
-	return n.GetString()
+	s, err := n.GetString()
+	if err != nil {
+		return "", err
+	}
+
+	if !utf8.ValidString(s) {
+		return "", errors.New("invalid UTF-8 string")
+	}
+
+	return s, nil
 }

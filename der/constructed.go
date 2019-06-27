@@ -15,16 +15,14 @@ func NodeByTag(ns []*Node, tag int) *Node {
 
 func NewConstructed(tag int) (n *Node) {
 
+	class := CLASS_CONTEXT_SPECIFIC
 	if tag < 0 {
-		return &Node{
-			class:       CLASS_UNIVERSAL,
-			tag:         TAG_SEQUENCE,
-			constructed: true,
-		}
+		class = CLASS_UNIVERSAL
+		tag = TAG_SEQUENCE
 	}
 
 	return &Node{
-		class:       CLASS_CONTEXT_SPECIFIC,
+		class:       class,
 		tag:         tag,
 		constructed: true,
 	}

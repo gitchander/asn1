@@ -1,5 +1,22 @@
 package der
 
+import (
+	"reflect"
+)
+
+func bytesSerialize(v reflect.Value, tag int) (*Node, error) {
+	return BytesSerialize(v.Bytes(), tag)
+}
+
+func bytesDeserialize(v reflect.Value, n *Node, tag int) error {
+	bs, err := BytesDeserialize(n, tag)
+	if err != nil {
+		return err
+	}
+	v.SetBytes(cloneBytes(bs))
+	return nil
+}
+
 func BytesSerialize(bs []byte, tag int) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC

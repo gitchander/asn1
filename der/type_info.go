@@ -13,6 +13,7 @@ type typeInfo struct {
 
 type fieldInfo struct {
 	optional bool
+	explicit bool
 	tag      *int
 	min      *int
 	max      *int
@@ -66,6 +67,9 @@ func parseFieldInfo(s string) (fp fieldInfo) {
 
 		case part == "optional":
 			fp.optional = true
+
+		case part == "explicit":
+			fp.explicit = true
 
 		case strings.HasPrefix(part, prefTag):
 			{

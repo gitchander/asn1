@@ -2,9 +2,8 @@ package der
 
 import (
 	"errors"
+	"fmt"
 	"reflect"
-
-	"github.com/gitchander/asn1/der/coda"
 )
 
 func Serialize(v interface{}) (*Node, error) {
@@ -13,10 +12,10 @@ func Serialize(v interface{}) (*Node, error) {
 
 func valueSerialize(v reflect.Value) (*Node, error) {
 	fn := getSerializeFunc(v.Type())
-	return fn(v)
+	return fn(v, -1)
 }
 
-type serializeFunc func(v reflect.Value) (*Node, error)
+type serializeFunc func(v reflect.Value, tag int) (*Node, error)
 
 func getSerializeFunc(t reflect.Type) serializeFunc {
 
@@ -55,122 +54,93 @@ func getSerializeFunc(t reflect.Type) serializeFunc {
 
 	case reflect.Slice:
 		return newSliceSerialize(t)
+
+	default:
+		panic(fmt.Errorf("getSerializeFunc: unsupported type %s", k))
 	}
 
 	return nil
 }
 
-func funcSerialize(v reflect.Value) (*Node, error) {
+func funcSerialize(v reflect.Value, tag int) (*Node, error) {
 
 	if (v.Kind() == reflect.Ptr) && v.IsNil() {
-		return nullSerialize(v)
+		return nullSerialize(v, tag)
 	}
 
 	s := v.Interface().(Serializer)
-	return s.SerializeDER(-1)
+	return s.SerializeDER(tag)
 }
 
-func nullSerialize(v reflect.Value) (*Node, error) {
+func float32Serialize(v reflect.Value, tag int) (*Node, error) {
 
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_NULL,
-		IsCompound: false,
-	}
-
-	n := new(Node)
-	n.setHeader(h)
-
-	return n, nil
-}
-
-func float32Serialize(v reflect.Value) (*Node, error) {
+	panic("float32Serialize is not completed")
 
 	return nil, nil
 }
 
-func float64Serialize(v reflect.Value) (*Node, error) {
+func float64Serialize(v reflect.Value, tag int) (*Node, error) {
+
+	panic("float64Serialize is not completed")
 
 	return nil, nil
 }
 
-func stringSerialize(v reflect.Value) (*Node, error) {
-
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_UTF8_STRING,
-		IsCompound: false,
-	}
-
-	n := new(Node)
-	n.setHeader(h)
-
-	n.data = []byte(v.String())
-
-	return n, nil
-}
-
-func bytesSerialize(v reflect.Value) (*Node, error) {
-
-	h := coda.Header{
-		Class:      CLASS_UNIVERSAL,
-		Tag:        TAG_OCTET_STRING,
-		IsCompound: false,
-	}
-
-	n := new(Node)
-	n.setHeader(h)
-
-	n.data = cloneBytes(v.Bytes())
-
-	return n, nil
-}
-
-func structSerialize(v reflect.Value) (*Node, error) {
+func structSerialize(v reflect.Value, tag int) (*Node, error) {
 
 	tinfo, err := getTypeInfo(v.Type())
 	if err != nil {
 		return nil, err
 	}
 
-	n := NewConstructed(-1)
-	for i := 0; i < v.NumField(); i++ {
-		err := structFieldSerialize(n, v.Field(i), &(tinfo.fields[i]))
+	count := v.NumField()
+	nodes := make([]*Node, 0, count)
+	for i := 0; i < count; i++ {
+		child, err := structFieldSerialize(v.Field(i), &(tinfo.fields[i]))
 		if err != nil {
 			return nil, err
 		}
+		if child != nil {
+			nodes = append(nodes, child)
+		}
 	}
+
+	n := NewConstructed(tag)
+	n.SetNodes(nodes)
 	return n, nil
 }
 
-func structFieldSerialize(n *Node, v reflect.Value, finfo *fieldInfo) error {
+func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 
 	if (v.Kind() == reflect.Ptr) && (v.IsNil()) {
 		if finfo.optional {
-			return nil
+			return nil, nil
 		} else {
-			return errors.New("Serializer is nil")
+			return nil, errors.New("structFieldSerialize: serialize nil value")
 		}
 	}
 
 	if finfo.tag == nil {
-		return nil
+		return nil, errors.New("struct field tag is not exist")
 	}
-
 	tag := *(finfo.tag)
 
-	cs := NewConstructed(tag)
+	if finfo.explicit {
 
-	fn := getSerializeFunc(v.Type())
-	child, err := fn(v)
-	if err != nil {
-		return err
+		fn := getSerializeFunc(v.Type())
+		child, err := fn(v, -1)
+		if err != nil {
+			return nil, err
+		}
+		nodes := []*Node{child}
+
+		n := NewConstructed(tag)
+		n.SetNodes(nodes)
+		return n, nil
 	}
 
-	cs.nodes = []*Node{child}
-	n.nodes = append(n.nodes, cs)
-
-	return nil
+	fn := getSerializeFunc(v.Type())
+	return fn(v, tag)
 }
 
 type ptrSerializer struct {
@@ -182,13 +152,13 @@ func newPtrSerialize(t reflect.Type) serializeFunc {
 	return s.encode
 }
 
-func (p *ptrSerializer) encode(v reflect.Value) (*Node, error) {
+func (p *ptrSerializer) encode(v reflect.Value, tag int) (*Node, error) {
 
 	if (v.Kind() == reflect.Ptr) && v.IsNil() {
-		return nullSerialize(v)
+		return nullSerialize(v, tag)
 	}
 
-	return p.fn(v.Elem())
+	return p.fn(v.Elem(), tag)
 }
 
 type arraySerializer struct {
@@ -200,21 +170,20 @@ func newArraySerialize(t reflect.Type) serializeFunc {
 	return s.encode
 }
 
-func (p *arraySerializer) encode(v reflect.Value) (*Node, error) {
+func (p *arraySerializer) encode(v reflect.Value, tag int) (*Node, error) {
 	if (v.Kind() == reflect.Ptr) && v.IsNil() {
-		return nullSerialize(v)
+		return nullSerialize(v, tag)
 	}
-	n := NewConstructed(-1)
-	k := v.Len()
-	for i := 0; i < k; i++ {
-
-		child, err := p.fn(v.Index(i))
+	nodes := make([]*Node, v.Len())
+	for i := range nodes {
+		child, err := p.fn(v.Index(i), -1)
 		if err != nil {
 			return nil, err
 		}
-
-		n.nodes = append(n.nodes, child)
+		nodes[i] = child
 	}
+	n := NewConstructed(tag)
+	n.SetNodes(nodes)
 	return n, nil
 }
 
