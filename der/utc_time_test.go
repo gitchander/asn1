@@ -6,24 +6,22 @@ import (
 	"time"
 
 	"github.com/gitchander/asn1/der/random"
+	"github.com/toelsiba/date"
 )
 
 func randUTCTime(r *rand.Rand, loc *time.Location) time.Time {
 
-	year := random.RangeInt(r, 1950, 2050)
-	month := time.Month(1 + r.Intn(12))
-	day := 1 + r.Intn(DaysIn(month, year))
+	var (
+		year  = random.RangeInt(r, 1950, 2050)             // [1950..2049]
+		month = time.Month(1 + r.Intn(12))                 // [1..12]
+		day   = 1 + r.Intn(date.NumberOfDays(year, month)) // [1.. nod ]
 
-	hour := r.Intn(24)
-	min := r.Intn(60)
-	sec := r.Intn(60)
+		hour = r.Intn(24) // [0..23]
+		min  = r.Intn(60) // [0..59]
+		sec  = r.Intn(60) // [0..59]
+	)
 
 	return time.Date(year, month, day, hour, min, sec, 0, loc)
-}
-
-func DaysIn(month time.Month, year int) int {
-
-	return 30
 }
 
 func TestTimeEncodeDecode(t *testing.T) {

@@ -4,23 +4,21 @@ import (
 	"testing"
 )
 
-type boolSample struct {
-	val  bool
-	data []byte
-}
+func TestBoolSamples(t *testing.T) {
 
-var boolSamples = []boolSample{
-	boolSample{false, []byte{0x01, 0x01, 0x00}},
-	boolSample{true, []byte{0x01, 0x01, 0x01}},
-	boolSample{true, []byte{0x01, 0x01, 0x0F}},
-	boolSample{true, []byte{0x01, 0x01, 0xFF}},
-}
-
-func TestBool(t *testing.T) {
+	var samples = []struct {
+		val  bool
+		data []byte
+	}{
+		{false, []byte{0x01, 0x01, 0x00}},
+		{true, []byte{0x01, 0x01, 0x01}},
+		{true, []byte{0x01, 0x01, 0x0F}},
+		{true, []byte{0x01, 0x01, 0xFF}},
+	}
 
 	var a, b bool
 
-	for _, sample := range boolSamples {
+	for _, sample := range samples {
 
 		err := Unmarshal(sample.data, &a)
 		if err != nil {

@@ -235,7 +235,7 @@ func testPersone() error {
 	a := Persone{
 		Name: "John",
 		Age:  -97,
-		Desc: "Аргентина манит негра",
+		Desc: "Ароза упала на лапу Азора",
 	}
 
 	data, err := der.Marshal(&a)

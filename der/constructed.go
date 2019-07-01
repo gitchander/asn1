@@ -6,7 +6,7 @@ import (
 
 func NodeByTag(ns []*Node, tag int) *Node {
 	for _, n := range ns {
-		if n.GetTag() == tag {
+		if n.tag == tag {
 			return n
 		}
 	}
@@ -41,7 +41,7 @@ func CheckConstructed(n *Node, tag int) error {
 	return CheckNode(n, CLASS_CONTEXT_SPECIFIC, tag)
 }
 
-func ChildSerialize_(n *Node, s Serializer, tag int) error {
+func childSerialize(n *Node, s Serializer, tag int) error {
 	child, err := s.SerializeDER(tag)
 	if err != nil {
 		return err
@@ -52,7 +52,7 @@ func ChildSerialize_(n *Node, s Serializer, tag int) error {
 	return nil
 }
 
-func ChildDeserialize_(n *Node, d Deserializer, tag int) error {
+func childDeserialize(n *Node, d Deserializer, tag int) error {
 	child := NodeByTag(n.nodes, tag)
 	// child can be nil for an optional value
 	return d.DeserializeDER(child, tag)
