@@ -13,7 +13,7 @@ func bytesDeserialize(v reflect.Value, n *Node, tag int) error {
 	if err != nil {
 		return err
 	}
-	v.SetBytes(cloneBytes(bs))
+	v.SetBytes(bs)
 	return nil
 }
 

@@ -5,11 +5,7 @@ import (
 	"reflect"
 )
 
-func Serialize(v interface{}) (*Node, error) {
-	return valueSerialize(reflect.ValueOf(v), -1)
-}
-
-func SerializeTag(v interface{}, tag int) (*Node, error) {
+func Serialize(v interface{}, tag int) (*Node, error) {
 	return valueSerialize(reflect.ValueOf(v), tag)
 }
 

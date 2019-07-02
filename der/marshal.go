@@ -37,7 +37,7 @@ var (
 )
 
 func Marshal(v interface{}) ([]byte, error) {
-	n, err := Serialize(v)
+	n, err := Serialize(v, -1)
 	if err != nil {
 		return nil, err
 	}
@@ -53,5 +53,5 @@ func Unmarshal(data []byte, v interface{}) error {
 	if len(rest) > 0 {
 		return fmt.Errorf("extra data length %d", len(rest))
 	}
-	return Deserialize(v, n)
+	return Deserialize(v, n, -1)
 }

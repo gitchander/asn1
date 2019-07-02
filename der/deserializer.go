@@ -6,11 +6,7 @@ import (
 	"reflect"
 )
 
-func Deserialize(v interface{}, n *Node) error {
-	return valueDeserialize(reflect.ValueOf(v), n, -1)
-}
-
-func DeserializeTag(v interface{}, n *Node, tag int) error {
+func Deserialize(v interface{}, n *Node, tag int) error {
 	return valueDeserialize(reflect.ValueOf(v), n, tag)
 }
 

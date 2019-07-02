@@ -1,9 +1,7 @@
 package der
 
 import (
-	"errors"
 	"reflect"
-	"unicode/utf8"
 )
 
 func stringSerialize(v reflect.Value, tag int) (*Node, error) {
@@ -46,14 +44,5 @@ func StringDeserialize(n *Node, tag int) (string, error) {
 		return "", err
 	}
 
-	s, err := n.GetString()
-	if err != nil {
-		return "", err
-	}
-
-	if !utf8.ValidString(s) {
-		return "", errors.New("invalid UTF-8 string")
-	}
-
-	return s, nil
+	return n.GetString()
 }
