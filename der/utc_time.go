@@ -118,10 +118,17 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 	if negative {
 		offsetMinutes = -offsetMinutes
 	}
-	t := time.Date(year, month, day, hour, min, sec, 0, time.UTC)
-	t = t.Add(time.Minute * time.Duration(-offsetMinutes))
-	t = t.In(time.Local)
 
+	const timeInLocal = true
+	if timeInLocal {
+		t := time.Date(year, month, day, hour, min, sec, 0, time.UTC)
+		t = t.Add(time.Minute * time.Duration(-offsetMinutes))
+		t = t.In(time.Local)
+		return t, data, nil
+	}
+
+	loc := time.FixedZone("", offsetMinutes*60)
+	t := time.Date(year, month, day, hour, min, sec, 0, loc)
 	return t, data, nil
 }
 

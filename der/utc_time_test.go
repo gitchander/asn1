@@ -9,48 +9,39 @@ import (
 	"github.com/toelsiba/date"
 )
 
-func randUTCTime(r *rand.Rand, loc *time.Location) time.Time {
+func randUTCTime(r *rand.Rand) time.Time {
 
 	var (
-		year  = random.RangeInt(r, 1950, 2050)             // [1950..2049]
-		month = time.Month(1 + r.Intn(12))                 // [1..12]
-		day   = 1 + r.Intn(date.NumberOfDays(year, month)) // [1.. nod ]
+		year  = random.RangeInt(r, 1950, 2050) // [1950..2049]
+		month = time.Month(1 + r.Intn(12))     // [1..12]
+		day   = 1 + r.Intn(date.NumberOfDays(year, month))
 
 		hour = r.Intn(24) // [0..23]
 		min  = r.Intn(60) // [0..59]
 		sec  = r.Intn(60) // [0..59]
 	)
 
+	const minutesPerHalfDay = 12 * 60
+	offsetMin := random.RangeInt(r, -minutesPerHalfDay, minutesPerHalfDay)
+	loc := time.FixedZone("", offsetMin*60)
+
 	return time.Date(year, month, day, hour, min, sec, 0, loc)
 }
 
-func TestTimeEncodeDecode(t *testing.T) {
+func TestUTCTime(t *testing.T) {
 	r := random.NewRandNow()
-	//const halfDay = 60 * 60 * 12
 	for i := 0; i < 100; i++ {
-
-		//offset := random.RangeInt(r, -halfDay, halfDay)
-		// loc := time.FixedZone("YUH", offset)
-		loc := time.Local
-
-		t1 := randUTCTime(r, loc)
-		//t.Log(t1)
-		//t1 = t1.In(loc)
-
+		t1 := randUTCTime(r)
 		data, err := encodeUTCTime(t1)
 		if err != nil {
 			t.Fatal(err)
 		}
-
-		//t.Logf("%s", data)
-
 		t2, err := decodeUTCTime(data)
 		if err != nil {
 			t.Fatal(err)
 		}
-		//t2 = t2.In(loc)
-
-		if !(t1.Equal(t2)) {
+		//t.Log(t1, "|", t2)
+		if !t1.Equal(t2) {
 			t.Fatalf("(%v) != (%v)", t1, t2)
 		}
 	}

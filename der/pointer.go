@@ -50,7 +50,7 @@ func ptrValueDeserialize(v reflect.Value, n *Node, tag int, fn deserializeFunc) 
 
 	if v.Kind() == reflect.Ptr {
 		if v.IsNil() {
-			valueMake(v)
+			makeValue(v)
 		}
 	}
 

@@ -32,18 +32,17 @@ func structSerialize(v reflect.Value, tag int) (*Node, error) {
 
 func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 
-	if (v.Kind() == reflect.Ptr) && (v.IsNil()) {
-		if finfo.optional {
-			return nil, nil
-		} else {
-			return nil, errors.New("structFieldSerialize: serialize nil value")
-		}
-	}
-
 	if finfo.tag == nil {
 		return nil, errors.New("struct field tag is not exist")
 	}
 	tag := *(finfo.tag)
+
+	if (v.Kind() == reflect.Ptr) && (v.IsNil()) {
+		if finfo.optional {
+			return nil, nil
+		}
+		return nil, fmt.Errorf("structFieldSerialize: field (tag:%d) is nil, it must be optional", tag)
+	}
 
 	if finfo.explicit {
 
@@ -107,7 +106,7 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 			valueSetZero(v)
 			return nil
 		}
-		return errors.New("structFieldDeserialize: deserialize nil value")
+		return fmt.Errorf("structFieldDeserialize: field (tag:%d) is nil, it must be optional", tag)
 	}
 
 	if finfo.explicit {

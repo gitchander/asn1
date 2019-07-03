@@ -15,7 +15,7 @@ func valueSetZero(v reflect.Value) {
 	}
 }
 
-func valueMake(v reflect.Value) {
+func makeValue(v reflect.Value) {
 	if t := v.Type(); t.Kind() == reflect.Ptr {
 		nv := reflect.New(t.Elem())
 		v.Set(nv)
