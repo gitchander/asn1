@@ -1,37 +1,15 @@
 package der
 
 import (
-	"math/rand"
 	"testing"
-	"time"
 
 	"github.com/gitchander/asn1/der/random"
-	"github.com/toelsiba/date"
 )
-
-func randUTCTime(r *rand.Rand) time.Time {
-
-	var (
-		year  = random.RangeInt(r, 1950, 2050) // [1950..2049]
-		month = time.Month(1 + r.Intn(12))     // [1..12]
-		day   = 1 + r.Intn(date.NumberOfDays(year, month))
-
-		hour = r.Intn(24) // [0..23]
-		min  = r.Intn(60) // [0..59]
-		sec  = r.Intn(60) // [0..59]
-	)
-
-	const minutesPerHalfDay = 12 * 60
-	offsetMin := random.RangeInt(r, -minutesPerHalfDay, minutesPerHalfDay)
-	loc := time.FixedZone("", offsetMin*60)
-
-	return time.Date(year, month, day, hour, min, sec, 0, loc)
-}
 
 func TestUTCTime(t *testing.T) {
 	r := random.NewRandNow()
-	for i := 0; i < 100; i++ {
-		t1 := randUTCTime(r)
+	for i := 0; i < 1000; i++ {
+		t1 := RandomUTCTime(r)
 		data, err := encodeUTCTime(t1)
 		if err != nil {
 			t.Fatal(err)

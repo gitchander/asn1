@@ -41,7 +41,7 @@ func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 		if finfo.optional {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("structFieldSerialize: field (tag:%d) is nil, it must be optional", tag)
+		return nil, fmt.Errorf("structFieldSerialize: field (tag:%d;type:%s) is nil, it must be optional", tag, v.Type())
 	}
 
 	if finfo.explicit {
@@ -106,7 +106,7 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 			valueSetZero(v)
 			return nil
 		}
-		return fmt.Errorf("structFieldDeserialize: field (tag:%d) is nil, it must be optional", tag)
+		return fmt.Errorf("structFieldDeserialize: field (tag:%d;type:%s) is nil, it must be optional", tag, v.Type())
 	}
 
 	if finfo.explicit {

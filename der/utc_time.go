@@ -3,7 +3,11 @@ package der
 import (
 	"errors"
 	"fmt"
+	"math/rand"
 	"time"
+
+	"github.com/gitchander/asn1/der/random"
+	"github.com/toelsiba/date"
 )
 
 /*
@@ -31,11 +35,11 @@ func appendUTCTime(data []byte, t time.Time) ([]byte, error) {
 
 	year, month, day := t.Date()
 
-	year = yearCollapse(year)
-	if year == -1 {
-		return nil, errors.New("bad convert time to UTCTime: invalid year")
+	shortYear := yearCollapse(year)
+	if shortYear == -1 {
+		return nil, fmt.Errorf("bad convert time to UTCTime: invalid year(%d)", year)
 	}
-	data = appendTwoDigits(data, year)
+	data = appendTwoDigits(data, shortYear)
 	data = appendTwoDigits(data, int(month))
 	data = appendTwoDigits(data, day)
 
@@ -78,10 +82,12 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 	}
 
 	var (
-		year  = yearExpand(ds[0])
-		month = time.Month(ds[1])
-		day   = ds[2]
+		shortYear = ds[0]
+		month     = time.Month(ds[1])
+		day       = ds[2]
 	)
+
+	year := yearExpand(shortYear)
 
 	var (
 		hour = ds[3]
@@ -170,6 +176,33 @@ func parseTwoDigitsSeries(data []byte, ds []int) ([]byte, error) {
 		ds[i] = d
 	}
 	return data, nil
+}
+
+func RandomUTCTime(r *rand.Rand) time.Time {
+
+	var (
+		year  = random.RangeInt(r, 1950, 2050) // [1950..2049]
+		month = time.Month(1 + r.Intn(12))     // [1..12]
+		day   = 1 + r.Intn(date.NumberOfDays(year, month))
+
+		hour = r.Intn(24) // [0..23]
+		min  = r.Intn(60) // [0..59]
+		sec  = r.Intn(60) // [0..59]
+	)
+
+	const minutesPerHalfDay = 12 * 60
+	offsetMin := random.RangeInt(r, -minutesPerHalfDay, minutesPerHalfDay)
+	loc := time.FixedZone("", offsetMin*60)
+
+	t := time.Date(year, month, day, hour, min, sec, 0, loc)
+
+	if year == 1950 {
+		t = t.Add(24 * time.Hour) // + 1 day (because if convert it to local time it can be equals 1949)
+	} else if year == 2049 {
+		t = t.Add(-24 * time.Hour) // - 1 day (because ---||--- 2050)
+	}
+
+	return t
 }
 
 func UTCTimeSerialize(t time.Time, tag int) (*Node, error) {

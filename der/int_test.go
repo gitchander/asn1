@@ -2,6 +2,7 @@ package der
 
 import (
 	"bytes"
+	"encoding/asn1"
 	"encoding/hex"
 	"errors"
 	"math/rand"
@@ -9,6 +10,48 @@ import (
 
 	"github.com/gitchander/asn1/der/random"
 )
+
+func randInt64(r *rand.Rand) int64 {
+	a := (r.Int63() >> uint(r.Intn(62)))
+	if (r.Int() & 1) == 0 {
+		a = -a
+	}
+	return a
+}
+
+func randInt(r *rand.Rand) int {
+	x := r.Int()
+	x >>= uint(r.Intn(63))
+	if random.Bool(r) {
+		x = -x
+	}
+	return x
+}
+
+func TestMarshalIntGolang(t *testing.T) {
+	r := random.NewRandNow()
+	for i := 0; i < 1000; i++ {
+
+		d := randInt(r)
+
+		asn1Data, err := asn1.Marshal(d)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		derData, err := Marshal(d)
+		if err != nil {
+			t.Fatal(err)
+		}
+
+		// t.Logf("asn1: %X\n", asn1Data)
+		// t.Logf("der:  %X\n", derData)
+
+		if !bytes.Equal(asn1Data, derData) {
+			t.Fatalf("for value %d asn1Data:[%X], derData:[%X]", d, asn1Data, derData)
+		}
+	}
+}
 
 func byteIsHex(b byte) bool {
 
@@ -28,16 +71,13 @@ func byteIsHex(b byte) bool {
 }
 
 func onlyHex(s string) string {
-
 	data := []byte(s)
-
 	var res []byte
 	for _, b := range data {
 		if byteIsHex(b) {
 			res = append(res, b)
 		}
 	}
-
 	return string(res)
 }
 
@@ -689,20 +729,12 @@ func TestUint64Samples(t *testing.T) {
 	}
 }
 
-func randInt64(r *rand.Rand) int64 {
-	a := (r.Int63() >> uint(r.Intn(62)))
-	if (r.Int() & 1) == 0 {
-		a = -a
-	}
-	return a
-}
-
 func TestInt64Marshal(t *testing.T) {
 
 	var a, b int64
 	r := random.NewRandNow()
 
-	for i := 0; i < 10000; i++ {
+	for i := 0; i < 1000; i++ {
 
 		a = randInt64(r)
 
