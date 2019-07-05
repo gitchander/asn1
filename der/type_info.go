@@ -1,6 +1,7 @@
 package der
 
 import (
+	"fmt"
 	"reflect"
 	"strconv"
 	"strings"
@@ -12,12 +13,34 @@ type typeInfo struct {
 }
 
 type fieldInfo struct {
+	name     string
 	optional bool
 	explicit bool
 	tag      *int
 	min      *int
 	max      *int
 	size     *int
+}
+
+func fieldInfoToString(fi *fieldInfo) string {
+	var sb strings.Builder
+	const separator = ','
+	sb.WriteByte('(')
+	fmt.Fprintf(&sb, "name:%q", fi.name)
+	if fi.tag != nil {
+		sb.WriteByte(separator)
+		fmt.Fprintf(&sb, "tag:%d", *(fi.tag))
+	}
+	if fi.optional {
+		sb.WriteByte(separator)
+		sb.WriteString("optional")
+	}
+	if fi.explicit {
+		sb.WriteByte(separator)
+		sb.WriteString("explicit")
+	}
+	sb.WriteByte(')')
+	return sb.String()
 }
 
 var (
@@ -42,6 +65,7 @@ func getTypeInfo(t reflect.Type) (*typeInfo, error) {
 		f := t.Field(i)
 		tag := f.Tag.Get("der")
 		params := parseFieldInfo(tag)
+		params.name = f.Name
 		tinfo.fields = append(tinfo.fields, params)
 	}
 

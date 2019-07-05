@@ -1,7 +1,6 @@
 package der
 
 import (
-	"errors"
 	"fmt"
 	"reflect"
 )
@@ -18,7 +17,7 @@ func structSerialize(v reflect.Value, tag int) (*Node, error) {
 	for i := 0; i < count; i++ {
 		child, err := structFieldSerialize(v.Field(i), &(tinfo.fields[i]))
 		if err != nil {
-			return nil, err
+			return nil, fmt.Errorf("%s >> %s", v.Type(), err)
 		}
 		if child != nil {
 			nodes = append(nodes, child)
@@ -33,7 +32,7 @@ func structSerialize(v reflect.Value, tag int) (*Node, error) {
 func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 
 	if finfo.tag == nil {
-		return nil, errors.New("struct field tag is not exist")
+		return nil, fmt.Errorf("field %s hasn't tag", fieldInfoToString(finfo))
 	}
 	tag := *(finfo.tag)
 
@@ -41,7 +40,7 @@ func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 		if finfo.optional {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("structFieldSerialize: field (tag:%d;type:%s) is nil, it must be optional", tag, v.Type())
+		return nil, fmt.Errorf("field %s value is nil, field must be optional", fieldInfoToString(finfo))
 	}
 
 	if finfo.explicit {
@@ -86,7 +85,7 @@ func structDeserialize(v reflect.Value, n *Node, tag int) error {
 		}
 		err := structFieldDeserialize(nodes, field, &(tinfo.fields[i]))
 		if err != nil {
-			return fmt.Errorf("der: field no. %d (for %v) deserialize error: %s", i, field.Type(), err)
+			return fmt.Errorf("%s >> %s", v.Type(), err)
 		}
 	}
 
@@ -96,7 +95,7 @@ func structDeserialize(v reflect.Value, n *Node, tag int) error {
 func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) error {
 
 	if finfo.tag == nil {
-		return errors.New("struct field tag is not exist")
+		return fmt.Errorf("field %s hasn't tag", fieldInfoToString(finfo))
 	}
 	tag := *(finfo.tag)
 
@@ -106,7 +105,7 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 			valueSetZero(v)
 			return nil
 		}
-		return fmt.Errorf("structFieldDeserialize: field (tag:%d;type:%s) is nil, it must be optional", tag, v.Type())
+		return fmt.Errorf("field %s value is nil, field must be optional", fieldInfoToString(finfo))
 	}
 
 	if finfo.explicit {
