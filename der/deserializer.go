@@ -12,7 +12,7 @@ func Deserialize(v interface{}, n *Node, tag int) error {
 
 func valueDeserialize(v reflect.Value, n *Node, tag int) error {
 	if v.Kind() != reflect.Ptr {
-		return errors.New("value is not ptr")
+		return errors.New("der deserialize: value is not ptr")
 	}
 	fn := getDeserializeFunc(v.Type())
 	return fn(v, n, tag)
@@ -37,12 +37,6 @@ func getDeserializeFunc(t reflect.Type) deserializeFunc {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return uintDeserialize
 
-	case reflect.Float32:
-		return float32Deserialize
-
-	case reflect.Float64:
-		return float64Deserialize
-
 	case reflect.String:
 		return stringDeserialize
 
@@ -59,10 +53,17 @@ func getDeserializeFunc(t reflect.Type) deserializeFunc {
 		return newSliceDeserialize(t)
 
 	default:
-		panic(fmt.Errorf("getDeserializeFunc: unsupported type %s", k))
+		return deserializeUnsupportedType(t)
 	}
+}
 
-	return nil
+func deserializeUnsupportedType(t reflect.Type) deserializeFunc {
+
+	err := fmt.Errorf("der: deserialize unsupported type %s", t.Kind())
+
+	return func(v reflect.Value, n *Node, tag int) error {
+		return err
+	}
 }
 
 func funcDeserialize(v reflect.Value, n *Node, tag int) error {

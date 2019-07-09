@@ -6,11 +6,11 @@ import (
 )
 
 func nullSerialize(v reflect.Value, tag int) (*Node, error) {
-	return _nullSerialize(tag)
+	return NullSerialize(tag)
 }
 
 func nullDeserialize(v reflect.Value, n *Node, tag int) error {
-	err := _nullDeserialize(n, tag)
+	err := NullDeserialize(n, tag)
 	if err != nil {
 		return err
 	}
@@ -18,7 +18,7 @@ func nullDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func _nullSerialize(tag int) (*Node, error) {
+func NullSerialize(tag int) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
 	if tag < 0 {
@@ -31,7 +31,7 @@ func _nullSerialize(tag int) (*Node, error) {
 	return n, nil
 }
 
-func _nullDeserialize(n *Node, tag int) error {
+func NullDeserialize(n *Node, tag int) error {
 
 	class := CLASS_CONTEXT_SPECIFIC
 	if tag < 0 {

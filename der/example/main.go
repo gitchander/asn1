@@ -17,6 +17,7 @@ func main() {
 	//fn := testIntDER
 	//fn := testIntJSON
 	//fn := testPersone
+	//fn := testFloat
 
 	if err := fn(); err != nil {
 		fmt.Println(err)
@@ -256,6 +257,20 @@ func testPersone() error {
 	fmt.Println("desc:", b.Desc)
 
 	data, err = asn1.Marshal(a)
+	if err != nil {
+		return err
+	}
+	fmt.Printf("%X\n", data)
+
+	return nil
+}
+
+func testFloat() error {
+
+	var a float64 = 3.14
+
+	data, err := der.Marshal(a)
+	//data, err := asn1.Marshal(a)
 	if err != nil {
 		return err
 	}

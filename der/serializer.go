@@ -33,12 +33,6 @@ func getSerializeFunc(t reflect.Type) serializeFunc {
 	case reflect.Uint, reflect.Uint8, reflect.Uint16, reflect.Uint32, reflect.Uint64:
 		return uintSerialize
 
-	case reflect.Float32:
-		return float32Serialize
-
-	case reflect.Float64:
-		return float64Serialize
-
 	case reflect.String:
 		return stringSerialize
 
@@ -55,10 +49,17 @@ func getSerializeFunc(t reflect.Type) serializeFunc {
 		return newSliceSerialize(t)
 
 	default:
-		panic(fmt.Errorf("getSerializeFunc: unsupported type %s", k))
+		return serializeUnsupportedType(t)
 	}
+}
 
-	return nil
+func serializeUnsupportedType(t reflect.Type) serializeFunc {
+
+	err := fmt.Errorf("der: serialize unsupported type %s", t.Kind())
+
+	return func(v reflect.Value, tag int) (*Node, error) {
+		return nil, err
+	}
 }
 
 func funcSerialize(v reflect.Value, tag int) (*Node, error) {
