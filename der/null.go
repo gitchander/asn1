@@ -21,7 +21,7 @@ func nullDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 func NullSerialize(params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_NULL
@@ -35,7 +35,7 @@ func NullSerialize(params ...Parameter) (*Node, error) {
 func NullDeserialize(n *Node, params ...Parameter) error {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_NULL

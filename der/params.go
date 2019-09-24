@@ -14,7 +14,7 @@ func (Tag) isParameter()      {}
 func (Optional) isParameter() {}
 func (Explicit) isParameter() {}
 
-func GetTagByParams(params []Parameter) (tag int, ok bool) {
+func getTagByParams(params []Parameter) (tag int, ok bool) {
 	for _, p := range params {
 		if tag, ok := p.(Tag); ok {
 			return int(tag), true

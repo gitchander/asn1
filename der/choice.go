@@ -14,7 +14,7 @@ type Choice interface {
 
 func ChoiceSerializeDER(c Choice, params ...Parameter) (*Node, error) {
 
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		tag, err := c.GetTag()
 		if err != nil {
@@ -43,7 +43,7 @@ func ChoiceSerializeDER(c Choice, params ...Parameter) (*Node, error) {
 
 func ChoiceDeserializeDER(c Choice, n *Node, params ...Parameter) error {
 
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		tag := n.GetTag()
 		err := c.SetTag(tag)

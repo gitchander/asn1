@@ -208,7 +208,7 @@ func RandomUTCTime(r *rand.Rand) time.Time {
 func UTCTimeSerialize(t time.Time, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_UTC_TIME
@@ -226,7 +226,7 @@ func UTCTimeSerialize(t time.Time, params ...Parameter) (*Node, error) {
 func UTCTimeDeserialize(n *Node, params ...Parameter) (time.Time, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_UTC_TIME

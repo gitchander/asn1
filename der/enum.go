@@ -5,7 +5,7 @@ package der
 func EnumSerialize(e int, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_ENUMERATED
@@ -20,7 +20,7 @@ func EnumSerialize(e int, params ...Parameter) (*Node, error) {
 func EnumDeserialize(n *Node, params ...Parameter) (int, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_ENUMERATED

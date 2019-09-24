@@ -20,7 +20,7 @@ func bytesDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 func BytesSerialize(bs []byte, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_OCTET_STRING
@@ -35,7 +35,7 @@ func BytesSerialize(bs []byte, params ...Parameter) (*Node, error) {
 func BytesDeserialize(n *Node, params ...Parameter) ([]byte, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_OCTET_STRING

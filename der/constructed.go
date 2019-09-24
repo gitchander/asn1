@@ -16,7 +16,7 @@ func NodeByTag(ns []*Node, tag int) *Node {
 func NewConstructed(params ...Parameter) (n *Node) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_SEQUENCE
@@ -35,7 +35,7 @@ func CheckConstructed(n *Node, params ...Parameter) error {
 		return ErrNodeIsNotConstructed
 	}
 
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		return CheckNode(n, CLASS_UNIVERSAL, TAG_SEQUENCE)
 	}

@@ -167,7 +167,7 @@ func intDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 func IntSerialize(x int64, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
@@ -182,7 +182,7 @@ func IntSerialize(x int64, params ...Parameter) (*Node, error) {
 func IntDeserialize(n *Node, params ...Parameter) (int64, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
@@ -199,7 +199,7 @@ func IntDeserialize(n *Node, params ...Parameter) (int64, error) {
 func UintSerialize(x uint64, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
@@ -214,7 +214,7 @@ func UintSerialize(x uint64, params ...Parameter) (*Node, error) {
 func UintDeserialize(n *Node, params ...Parameter) (uint64, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER

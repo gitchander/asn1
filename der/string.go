@@ -20,7 +20,7 @@ func stringDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 func StringSerialize(s string, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_UTF8_STRING
@@ -35,7 +35,7 @@ func StringSerialize(s string, params ...Parameter) (*Node, error) {
 func StringDeserialize(n *Node, params ...Parameter) (string, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	tag, ok := GetTagByParams(params)
+	tag, ok := getTagByParams(params)
 	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_UTF8_STRING
