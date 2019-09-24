@@ -4,12 +4,12 @@ import (
 	"reflect"
 )
 
-func bytesSerialize(v reflect.Value, tag int) (*Node, error) {
-	return BytesSerialize(v.Bytes(), tag)
+func bytesSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
+	return BytesSerialize(v.Bytes(), params...)
 }
 
-func bytesDeserialize(v reflect.Value, n *Node, tag int) error {
-	bs, err := BytesDeserialize(n, tag)
+func bytesDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
+	bs, err := BytesDeserialize(n, params...)
 	if err != nil {
 		return err
 	}
@@ -17,10 +17,11 @@ func bytesDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func BytesSerialize(bs []byte, tag int) (*Node, error) {
+func BytesSerialize(bs []byte, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_OCTET_STRING
 	}
@@ -31,10 +32,11 @@ func BytesSerialize(bs []byte, tag int) (*Node, error) {
 	return n, nil
 }
 
-func BytesDeserialize(n *Node, tag int) ([]byte, error) {
+func BytesDeserialize(n *Node, params ...Parameter) ([]byte, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_OCTET_STRING
 	}

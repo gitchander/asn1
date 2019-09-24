@@ -13,21 +13,16 @@ func newArraySerialize(t reflect.Type) serializeFunc {
 	return s.encode
 }
 
-func (p *arraySerializer) encode(v reflect.Value, tag int) (*Node, error) {
-
-	// if (v.Kind() == reflect.Ptr) && v.IsNil() {
-	// 	return nullSerialize(v, tag)
-	// }
-
+func (p *arraySerializer) encode(v reflect.Value, params ...Parameter) (*Node, error) {
 	nodes := make([]*Node, v.Len())
 	for i := range nodes {
-		child, err := p.fn(v.Index(i), -1)
+		child, err := p.fn(v.Index(i))
 		if err != nil {
 			return nil, err
 		}
 		nodes[i] = child
 	}
-	n := NewConstructed(tag)
+	n := NewConstructed(params...)
 	n.SetNodes(nodes)
 	return n, nil
 }
@@ -41,9 +36,9 @@ func newArrayDeserialize(t reflect.Type) deserializeFunc {
 	return d.decode
 }
 
-func (p *arrayDeserializer) decode(v reflect.Value, n *Node, tag int) error {
+func (p *arrayDeserializer) decode(v reflect.Value, n *Node, params ...Parameter) error {
 
-	err := CheckConstructed(n, tag)
+	err := CheckConstructed(n, params...)
 	if err != nil {
 		return err
 	}
@@ -57,7 +52,7 @@ func (p *arrayDeserializer) decode(v reflect.Value, n *Node, tag int) error {
 	v.Set(slice)
 
 	for i, child := range nodes {
-		err = p.fn(v.Index(i), child, -1)
+		err = p.fn(v.Index(i), child)
 		if err != nil {
 			return err
 		}

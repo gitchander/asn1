@@ -5,12 +5,12 @@ import (
 	"reflect"
 )
 
-func nullSerialize(v reflect.Value, tag int) (*Node, error) {
-	return NullSerialize(tag)
+func nullSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
+	return NullSerialize(params...)
 }
 
-func nullDeserialize(v reflect.Value, n *Node, tag int) error {
-	err := NullDeserialize(n, tag)
+func nullDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
+	err := NullDeserialize(n, params...)
 	if err != nil {
 		return err
 	}
@@ -18,10 +18,11 @@ func nullDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func NullSerialize(tag int) (*Node, error) {
+func NullSerialize(params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_NULL
 	}
@@ -31,10 +32,11 @@ func NullSerialize(tag int) (*Node, error) {
 	return n, nil
 }
 
-func NullDeserialize(n *Node, tag int) error {
+func NullDeserialize(n *Node, params ...Parameter) error {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_NULL
 	}

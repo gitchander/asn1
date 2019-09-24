@@ -6,6 +6,7 @@ import (
 )
 
 /*
+
 type Tag int
 
 type Serializer interface {
@@ -24,11 +25,11 @@ ussage:
 */
 
 type Serializer interface {
-	SerializeDER(tag int) (*Node, error)
+	SerializeDER(params ...Parameter) (*Node, error)
 }
 
 type Deserializer interface {
-	DeserializeDER(n *Node, tag int) error
+	DeserializeDER(n *Node, params ...Parameter) error
 }
 
 var (
@@ -36,15 +37,19 @@ var (
 	typeDeserializer = reflect.TypeOf((*Deserializer)(nil)).Elem()
 )
 
-func Marshal(v interface{}) ([]byte, error) {
-	n, err := Serialize(v, -1)
+// asn1.MarshalWithParams(val interface{}, params string) ([]byte, error)
+
+func Marshal(v interface{}, params ...Parameter) ([]byte, error) {
+	n, err := Serialize(v, params...)
 	if err != nil {
 		return nil, err
 	}
 	return EncodeNode(nil, n)
 }
 
-func Unmarshal(data []byte, v interface{}) error {
+// asn1.UnmarshalWithParams(b []byte, val interface{}, params string) (rest []byte, err error)
+
+func Unmarshal(data []byte, v interface{}, params ...Parameter) error {
 	n := new(Node)
 	rest, err := DecodeNode(data, n)
 	if err != nil {
@@ -53,5 +58,5 @@ func Unmarshal(data []byte, v interface{}) error {
 	if len(rest) > 0 {
 		return fmt.Errorf("extra data length %d", len(rest))
 	}
-	return Deserialize(v, n, -1)
+	return Deserialize(v, n, params...)
 }

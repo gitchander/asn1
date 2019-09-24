@@ -5,16 +5,16 @@ import (
 	"reflect"
 )
 
-func Serialize(v interface{}, tag int) (*Node, error) {
-	return valueSerialize(reflect.ValueOf(v), tag)
+func Serialize(v interface{}, params ...Parameter) (*Node, error) {
+	return valueSerialize(reflect.ValueOf(v), params...)
 }
 
-func valueSerialize(v reflect.Value, tag int) (*Node, error) {
+func valueSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 	fn := getSerializeFunc(v.Type())
-	return fn(v, tag)
+	return fn(v, params...)
 }
 
-type serializeFunc func(v reflect.Value, tag int) (*Node, error)
+type serializeFunc func(v reflect.Value, params ...Parameter) (*Node, error)
 
 func getSerializeFunc(t reflect.Type) serializeFunc {
 
@@ -57,19 +57,19 @@ func serializeUnsupportedType(t reflect.Type) serializeFunc {
 
 	err := fmt.Errorf("der: serialize unsupported type %s", t.Kind())
 
-	return func(v reflect.Value, tag int) (*Node, error) {
+	return func(v reflect.Value, params ...Parameter) (*Node, error) {
 		return nil, err
 	}
 }
 
-func funcSerialize(v reflect.Value, tag int) (*Node, error) {
+func funcSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 
 	if (v.Kind() == reflect.Ptr) && v.IsNil() {
-		return nullSerialize(v, tag)
+		return nullSerialize(v, params...)
 	}
 
 	s := v.Interface().(Serializer)
-	return s.SerializeDER(tag)
+	return s.SerializeDER(params...)
 }
 
 func newSliceSerialize(t reflect.Type) serializeFunc {

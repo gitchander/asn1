@@ -1,10 +1,12 @@
 package der
 
 // Enumerated
-func EnumSerialize(e int, tag int) (*Node, error) {
+
+func EnumSerialize(e int, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_ENUMERATED
 	}
@@ -15,10 +17,11 @@ func EnumSerialize(e int, tag int) (*Node, error) {
 	return n, nil
 }
 
-func EnumDeserialize(n *Node, tag int) (int, error) {
+func EnumDeserialize(n *Node, params ...Parameter) (int, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_ENUMERATED
 	}

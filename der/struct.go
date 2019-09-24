@@ -5,7 +5,7 @@ import (
 	"reflect"
 )
 
-func structSerialize(v reflect.Value, tag int) (*Node, error) {
+func structSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 
 	tinfo, err := getTypeInfo(v.Type())
 	if err != nil {
@@ -24,7 +24,7 @@ func structSerialize(v reflect.Value, tag int) (*Node, error) {
 		}
 	}
 
-	n := NewConstructed(tag)
+	n := NewConstructed(params...)
 	n.SetNodes(nodes)
 	return n, nil
 }
@@ -46,29 +46,29 @@ func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 	if finfo.explicit {
 
 		fn := getSerializeFunc(v.Type())
-		child, err := fn(v, -1)
+		child, err := fn(v)
 		if err != nil {
 			return nil, err
 		}
 		nodes := []*Node{child}
 
-		n := NewConstructed(tag)
+		n := NewConstructed(Tag(tag))
 		n.SetNodes(nodes)
 		return n, nil
 	}
 
 	fn := getSerializeFunc(v.Type())
-	return fn(v, tag)
+	return fn(v, Tag(tag))
 }
 
-func structDeserialize(v reflect.Value, n *Node, tag int) error {
+func structDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 
 	tinfo, err := getTypeInfo(v.Type())
 	if err != nil {
 		return err
 	}
 
-	err = CheckConstructed(n, tag)
+	err = CheckConstructed(n, params...)
 	if err != nil {
 		return err
 	}
@@ -110,7 +110,7 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 
 	if finfo.explicit {
 
-		err := CheckConstructed(n, tag)
+		err := CheckConstructed(n, Tag(tag))
 		if err != nil {
 			return err
 		}
@@ -124,9 +124,9 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 		child := cs[0]
 
 		fn := getDeserializeFunc(v.Type())
-		return fn(v, child, -1)
+		return fn(v, child)
 	}
 
 	fn := getDeserializeFunc(v.Type())
-	return fn(v, n, tag)
+	return fn(v, n, Tag(tag))
 }

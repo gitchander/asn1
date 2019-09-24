@@ -13,10 +13,11 @@ func NodeByTag(ns []*Node, tag int) *Node {
 	return nil
 }
 
-func NewConstructed(tag int) (n *Node) {
+func NewConstructed(params ...Parameter) (n *Node) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_SEQUENCE
 	}
@@ -28,13 +29,14 @@ func NewConstructed(tag int) (n *Node) {
 	}
 }
 
-func CheckConstructed(n *Node, tag int) error {
+func CheckConstructed(n *Node, params ...Parameter) error {
 
 	if !n.constructed {
 		return ErrNodeIsNotConstructed
 	}
 
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		return CheckNode(n, CLASS_UNIVERSAL, TAG_SEQUENCE)
 	}
 
@@ -42,7 +44,7 @@ func CheckConstructed(n *Node, tag int) error {
 }
 
 func childSerialize(n *Node, s Serializer, tag int) error {
-	child, err := s.SerializeDER(tag)
+	child, err := s.SerializeDER(Tag(tag))
 	if err != nil {
 		return err
 	}
@@ -55,7 +57,7 @@ func childSerialize(n *Node, s Serializer, tag int) error {
 func childDeserialize(n *Node, d Deserializer, tag int) error {
 	child := NodeByTag(n.nodes, tag)
 	// child can be nil for an optional value
-	return d.DeserializeDER(child, tag)
+	return d.DeserializeDER(child, Tag(tag))
 }
 
 func encodeNodes(ns []*Node) (data []byte, err error) {

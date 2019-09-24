@@ -19,12 +19,12 @@ func boolDecode(data []byte) (bool, error) {
 	return (data[0] != 0), nil
 }
 
-func boolSerialize(v reflect.Value, tag int) (*Node, error) {
-	return BoolSerialize(v.Bool(), tag)
+func boolSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
+	return BoolSerialize(v.Bool(), params...)
 }
 
-func boolDeserialize(v reflect.Value, n *Node, tag int) error {
-	b, err := BoolDeserialize(n, tag)
+func boolDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
+	b, err := BoolDeserialize(n, params...)
 	if err != nil {
 		return err
 	}
@@ -32,10 +32,11 @@ func boolDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func BoolSerialize(b bool, tag int) (*Node, error) {
+func BoolSerialize(b bool, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_BOOLEAN
 	}
@@ -46,10 +47,11 @@ func BoolSerialize(b bool, tag int) (*Node, error) {
 	return n, nil
 }
 
-func BoolDeserialize(n *Node, tag int) (bool, error) {
+func BoolDeserialize(n *Node, params ...Parameter) (bool, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_BOOLEAN
 	}

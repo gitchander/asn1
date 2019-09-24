@@ -12,13 +12,15 @@ type Choice interface {
 	Value() interface{}
 }
 
-func ChoiceSerializeDER(c Choice, tag int) (*Node, error) {
-	if tag < 0 {
+func ChoiceSerializeDER(c Choice, params ...Parameter) (*Node, error) {
+
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		tag, err := c.GetTag()
 		if err != nil {
 			return nil, err
 		}
-		return valueSerialize(reflect.ValueOf(c.Value()), tag)
+		return valueSerialize(reflect.ValueOf(c.Value()), Tag(tag))
 	}
 
 	n := NewNode(CLASS_CONTEXT_SPECIFIC, tag)
@@ -28,7 +30,7 @@ func ChoiceSerializeDER(c Choice, tag int) (*Node, error) {
 		return nil, err
 	}
 
-	child, err := valueSerialize(reflect.ValueOf(c.Value()), childTag)
+	child, err := valueSerialize(reflect.ValueOf(c.Value()), Tag(childTag))
 	if err != nil {
 		return nil, err
 	}
@@ -39,15 +41,16 @@ func ChoiceSerializeDER(c Choice, tag int) (*Node, error) {
 	return n, nil
 }
 
-func ChoiceDeserializeDER(c Choice, n *Node, tag int) error {
+func ChoiceDeserializeDER(c Choice, n *Node, params ...Parameter) error {
 
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		tag := n.GetTag()
 		err := c.SetTag(tag)
 		if err != nil {
 			return err
 		}
-		return valueDeserialize(reflect.ValueOf(c.Value()), n, tag)
+		return valueDeserialize(reflect.ValueOf(c.Value()), n, Tag(tag))
 	}
 
 	err := CheckNode(n, CLASS_CONTEXT_SPECIFIC, tag)
@@ -69,5 +72,5 @@ func ChoiceDeserializeDER(c Choice, n *Node, tag int) error {
 		return err
 	}
 
-	return valueDeserialize(reflect.ValueOf(c.Value()), child, childTag)
+	return valueDeserialize(reflect.ValueOf(c.Value()), child, Tag(childTag))
 }

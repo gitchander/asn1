@@ -94,17 +94,17 @@ func uintDecode(data []byte) (uint64, error) {
 	return 0, ErrorUnmarshalBytes{data, reflect.Uint}
 }
 
-func uintSerialize(v reflect.Value, tag int) (*Node, error) {
-	return UintSerialize(v.Uint(), tag)
+func uintSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
+	return UintSerialize(v.Uint(), params...)
 }
 
-func intSerialize(v reflect.Value, tag int) (*Node, error) {
-	return IntSerialize(v.Int(), tag)
+func intSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
+	return IntSerialize(v.Int(), params...)
 }
 
-func uintDeserialize(v reflect.Value, n *Node, tag int) error {
+func uintDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 
-	x, err := UintDeserialize(n, tag)
+	x, err := UintDeserialize(n, params...)
 	if err != nil {
 		return err
 	}
@@ -133,9 +133,9 @@ func uintDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func intDeserialize(v reflect.Value, n *Node, tag int) error {
+func intDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 
-	x, err := IntDeserialize(n, tag)
+	x, err := IntDeserialize(n, params...)
 	if err != nil {
 		return err
 	}
@@ -164,10 +164,11 @@ func intDeserialize(v reflect.Value, n *Node, tag int) error {
 	return nil
 }
 
-func IntSerialize(x int64, tag int) (*Node, error) {
+func IntSerialize(x int64, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
 	}
@@ -178,10 +179,11 @@ func IntSerialize(x int64, tag int) (*Node, error) {
 	return n, nil
 }
 
-func IntDeserialize(n *Node, tag int) (int64, error) {
+func IntDeserialize(n *Node, params ...Parameter) (int64, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
 	}
@@ -194,10 +196,11 @@ func IntDeserialize(n *Node, tag int) (int64, error) {
 	return n.GetInt()
 }
 
-func UintSerialize(x uint64, tag int) (*Node, error) {
+func UintSerialize(x uint64, params ...Parameter) (*Node, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
 	}
@@ -208,10 +211,11 @@ func UintSerialize(x uint64, tag int) (*Node, error) {
 	return n, nil
 }
 
-func UintDeserialize(n *Node, tag int) (uint64, error) {
+func UintDeserialize(n *Node, params ...Parameter) (uint64, error) {
 
 	class := CLASS_CONTEXT_SPECIFIC
-	if tag < 0 {
+	tag, ok := GetTagByParams(params)
+	if !ok {
 		class = CLASS_UNIVERSAL
 		tag = TAG_INTEGER
 	}

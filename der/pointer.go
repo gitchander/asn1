@@ -14,13 +14,13 @@ func newPtrSerialize(t reflect.Type) serializeFunc {
 	return s.encode
 }
 
-func (p *ptrSerializer) encode(v reflect.Value, tag int) (*Node, error) {
+func (p *ptrSerializer) encode(v reflect.Value, params ...Parameter) (*Node, error) {
 
 	if (v.Kind() == reflect.Ptr) && v.IsNil() {
-		return nullSerialize(v, tag)
+		return nullSerialize(v, params...)
 	}
 
-	return p.fn(v.Elem(), tag)
+	return p.fn(v.Elem(), params...)
 }
 
 type ptrDeserializer struct {
@@ -32,21 +32,16 @@ func newPtrDeserialize(t reflect.Type) deserializeFunc {
 	return d.decode
 }
 
-func (p *ptrDeserializer) decode(v reflect.Value, n *Node, tag int) error {
+func (p *ptrDeserializer) decode(v reflect.Value, n *Node, params ...Parameter) error {
 
 	if v.IsNil() {
 		return fmt.Errorf("der: Decode(nil %s)", v.Type())
 	}
 
-	return ptrValueDeserialize(v.Elem(), n, tag, p.fn)
+	return ptrValueDeserialize(p.fn, v.Elem(), n, params...)
 }
 
-func ptrValueDeserialize(v reflect.Value, n *Node, tag int, fn deserializeFunc) error {
-
-	// err := nullDeserialize(v, n, tag)
-	// if err == nil {
-	// 	return nil
-	// }
+func ptrValueDeserialize(fn deserializeFunc, v reflect.Value, n *Node, params ...Parameter) error {
 
 	if v.Kind() == reflect.Ptr {
 		if v.IsNil() {
@@ -54,5 +49,5 @@ func ptrValueDeserialize(v reflect.Value, n *Node, tag int, fn deserializeFunc) 
 		}
 	}
 
-	return fn(v, n, tag)
+	return fn(v, n, params...)
 }

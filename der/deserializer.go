@@ -6,19 +6,19 @@ import (
 	"reflect"
 )
 
-func Deserialize(v interface{}, n *Node, tag int) error {
-	return valueDeserialize(reflect.ValueOf(v), n, tag)
+func Deserialize(v interface{}, n *Node, params ...Parameter) error {
+	return valueDeserialize(reflect.ValueOf(v), n, params...)
 }
 
-func valueDeserialize(v reflect.Value, n *Node, tag int) error {
+func valueDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 	if v.Kind() != reflect.Ptr {
 		return errors.New("der deserialize: value is not ptr")
 	}
 	fn := getDeserializeFunc(v.Type())
-	return fn(v, n, tag)
+	return fn(v, n, params...)
 }
 
-type deserializeFunc func(v reflect.Value, n *Node, tag int) error
+type deserializeFunc func(v reflect.Value, n *Node, params ...Parameter) error
 
 func getDeserializeFunc(t reflect.Type) deserializeFunc {
 
@@ -61,14 +61,14 @@ func deserializeUnsupportedType(t reflect.Type) deserializeFunc {
 
 	err := fmt.Errorf("der: deserialize unsupported type %s", t.Kind())
 
-	return func(v reflect.Value, n *Node, tag int) error {
+	return func(v reflect.Value, n *Node, params ...Parameter) error {
 		return err
 	}
 }
 
-func funcDeserialize(v reflect.Value, n *Node, tag int) error {
+func funcDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 	d := v.Interface().(Deserializer)
-	return d.DeserializeDER(n, tag)
+	return d.DeserializeDER(n, params...)
 }
 
 func newSliceDeserialize(t reflect.Type) deserializeFunc {
