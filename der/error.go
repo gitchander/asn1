@@ -15,7 +15,7 @@ func (e ErrorUnmarshalBytes) Bytes() []byte {
 }
 
 func (e ErrorUnmarshalBytes) Error() string {
-	return fmt.Sprintf("der: cannot unmarshal bytes into Go value of type %s", e.kind)
+	return fmt.Sprintf("der: cannot unmarshal bytes [%x] into Go value of type %s", e.data, e.kind)
 }
 
 type ErrorUnmarshalUint struct {

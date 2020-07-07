@@ -77,18 +77,18 @@ func uintEncode(x uint64) []byte {
 }
 
 func intDecode(data []byte) (int64, error) {
-	data = intBytesComplete(data, sizeOfUint64)
-	if len(data) == sizeOfUint64 {
-		return int64(byteOrder.Uint64(data)), nil
+	completedData := intBytesComplete(data, sizeOfUint64)
+	if len(completedData) == sizeOfUint64 {
+		return int64(byteOrder.Uint64(completedData)), nil
 	}
 	return 0, ErrorUnmarshalBytes{data, reflect.Int}
 }
 
 func uintDecode(data []byte) (uint64, error) {
-	data = intBytesComplete(data, sizeOfUint64+1)
-	if len(data) == sizeOfUint64+1 {
-		if data[0] == 0 {
-			return byteOrder.Uint64(data[1:]), nil
+	completedData := intBytesComplete(data, sizeOfUint64+1)
+	if len(completedData) == sizeOfUint64+1 {
+		if completedData[0] == 0 {
+			return byteOrder.Uint64(completedData[1:]), nil
 		}
 	}
 	return 0, ErrorUnmarshalBytes{data, reflect.Uint}
