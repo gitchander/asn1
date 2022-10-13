@@ -8,7 +8,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/gitchander/asn1/der/random"
+	"github.com/gitchander/asn1/der/utils/random"
 )
 
 func randInt64(r *rand.Rand) int64 {
@@ -22,7 +22,7 @@ func randInt64(r *rand.Rand) int64 {
 func randInt(r *rand.Rand) int {
 	x := r.Int()
 	x >>= uint(r.Intn(63))
-	if random.Bool(r) {
+	if random.RandBool(r) {
 		x = -x
 	}
 	return x

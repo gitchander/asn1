@@ -64,29 +64,29 @@ func intBytesComplete(data []byte, n int) []byte {
 }
 
 func intEncode(x int64) []byte {
-	data := make([]byte, sizeOfUint64)
+	data := make([]byte, bytesPerUint64)
 	byteOrder.PutUint64(data, uint64(x))
 	return intBytesCrop(data)
 }
 
 func uintEncode(x uint64) []byte {
-	data := make([]byte, sizeOfUint64+1)
+	data := make([]byte, (bytesPerUint64 + 1))
 	data[0] = 0
 	byteOrder.PutUint64(data[1:], x)
 	return intBytesCrop(data)
 }
 
 func intDecode(data []byte) (int64, error) {
-	completedData := intBytesComplete(data, sizeOfUint64)
-	if len(completedData) == sizeOfUint64 {
+	completedData := intBytesComplete(data, bytesPerUint64)
+	if len(completedData) == bytesPerUint64 {
 		return int64(byteOrder.Uint64(completedData)), nil
 	}
 	return 0, ErrorUnmarshalBytes{data, reflect.Int}
 }
 
 func uintDecode(data []byte) (uint64, error) {
-	completedData := intBytesComplete(data, sizeOfUint64+1)
-	if len(completedData) == sizeOfUint64+1 {
+	completedData := intBytesComplete(data, (bytesPerUint64 + 1))
+	if len(completedData) == (bytesPerUint64 + 1) {
 		if completedData[0] == 0 {
 			return byteOrder.Uint64(completedData[1:]), nil
 		}

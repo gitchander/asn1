@@ -7,7 +7,7 @@ import (
 	"math/rand"
 	"testing"
 
-	"github.com/gitchander/asn1/der/random"
+	"github.com/gitchander/asn1/der/utils/random"
 )
 
 func randLength(r *rand.Rand) int {

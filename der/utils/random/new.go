@@ -16,11 +16,3 @@ func NewRandTime(t time.Time) *rand.Rand {
 func NewRandNow() *rand.Rand {
 	return NewRandTime(time.Now())
 }
-
-func Bool(r *rand.Rand) bool {
-	return ((r.Int() & 1) == 1)
-}
-
-func RangeInt(r *rand.Rand, min, max int) int {
-	return min + r.Intn(max-min)
-}

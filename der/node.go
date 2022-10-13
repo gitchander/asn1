@@ -14,18 +14,16 @@ var (
 	ErrNodeIsNotConstructed = errors.New("node is not constructed")
 )
 
-/*
-
-golang asn1:
-
-type RawValue struct {
-	Class, Tag int
-	IsCompound bool
-	Bytes      []byte
-	FullBytes  []byte // includes the tag and length
-}
-
-*/
+//------------------------------------------------------------------------------
+// golang asn1:
+//
+// type RawValue struct {
+// 	Class, Tag int
+// 	IsCompound bool
+// 	Bytes      []byte
+// 	FullBytes  []byte // includes the tag and length
+// }
+//------------------------------------------------------------------------------
 
 type Node struct {
 	class       int

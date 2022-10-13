@@ -6,20 +6,17 @@ import (
 	"math/rand"
 	"time"
 
-	"github.com/gitchander/asn1/der/random"
-	"github.com/toelsiba/date"
+	"github.com/gitchander/asn1/der/utils/date"
+	"github.com/gitchander/asn1/der/utils/random"
+	// "github.com/toelsiba/date"
 )
 
-/*
-
-YYMMDDhhmmZ
-YYMMDDhhmm+hhmm
-YYMMDDhhmm-hhmm
-YYMMDDhhmmssZ
-YYMMDDhhmmss+hhmm
-YYMMDDhhmmss-hhmm
-
-*/
+// YYMMDDhhmmZ
+// YYMMDDhhmm+hhmm
+// YYMMDDhhmm-hhmm
+// YYMMDDhhmmssZ
+// YYMMDDhhmmss+hhmm
+// YYMMDDhhmmss-hhmm
 
 func encodeUTCTime(t time.Time) ([]byte, error) {
 	data := make([]byte, 0, 17)
@@ -181,8 +178,8 @@ func parseTwoDigitsSeries(data []byte, ds []int) ([]byte, error) {
 func RandomUTCTime(r *rand.Rand) time.Time {
 
 	var (
-		year  = random.RangeInt(r, 1950, 2050) // [1950..2049]
-		month = time.Month(1 + r.Intn(12))     // [1..12]
+		year  = random.RandIntMinMax(r, 1950, 2050) // [1950..2049]
+		month = time.Month(1 + r.Intn(12))          // [1..12]
 		day   = 1 + r.Intn(date.NumberOfDays(year, month))
 
 		hour = r.Intn(24) // [0..23]
@@ -191,7 +188,7 @@ func RandomUTCTime(r *rand.Rand) time.Time {
 	)
 
 	const minutesPerHalfDay = 12 * 60
-	offsetMin := random.RangeInt(r, -minutesPerHalfDay, minutesPerHalfDay)
+	offsetMin := random.RandIntMinMax(r, -minutesPerHalfDay, minutesPerHalfDay)
 	loc := time.FixedZone("", offsetMin*60)
 
 	t := time.Date(year, month, day, hour, min, sec, 0, loc)

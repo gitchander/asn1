@@ -6,21 +6,23 @@ import (
 	"encoding/hex"
 	"encoding/json"
 	"fmt"
+	"log"
 
 	"github.com/gitchander/asn1/der"
 )
 
 func main() {
-
-	//fn := derHex
-	//fn := testUint64
-	//fn := testIntDER
-	//fn := testIntJSON
-	fn := testPersone
-	//fn := testFloat
-
-	if err := fn(); err != nil {
-		fmt.Println(err)
+	var (
+		//fn = derHex
+		//fn = testUint64
+		//fn = testIntDER
+		//fn = testIntJSON
+		fn = testPersone
+		//fn = testFloat
+	)
+	err := fn()
+	if err != nil {
+		log.Fatal(err)
 	}
 }
 
