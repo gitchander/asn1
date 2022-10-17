@@ -1,5 +1,9 @@
 package der
 
+import (
+	"strconv"
+)
+
 const (
 	// bytesPerUint8  = 1
 	// bytesPerUint16 = 2
@@ -19,16 +23,14 @@ func byteIsDigit(b byte) bool {
 
 func byteToDigit(b byte) (digit int, ok bool) {
 	if byteIsDigit(b) {
-		digit = int(b - '0')
-		return digit, true
+		return int(b - '0'), true
 	}
 	return 0, false
 }
 
-func digitToByte(digit int) (b byte, ok bool) {
+func digitToChar(digit int) (b byte, ok bool) {
 	if (0 <= digit) && (digit <= 9) {
-		b = byte('0' + digit)
-		return b, true
+		return byte('0' + digit), true
 	}
 	return 0, false
 }
@@ -37,4 +39,12 @@ func cloneBytes(a []byte) []byte {
 	b := make([]byte, len(a))
 	copy(b, a)
 	return b
+}
+
+func parseInt(s string) (int, error) {
+	return strconv.Atoi(s)
+}
+
+func newInt(a int) *int {
+	return &a
 }

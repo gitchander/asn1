@@ -7,7 +7,7 @@ import (
 
 func structSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 
-	tinfo, err := getTypeInfo(v.Type())
+	tinfo, err := tinfoMap.getTypeInfo(v.Type())
 	if err != nil {
 		return nil, err
 	}
@@ -15,7 +15,7 @@ func structSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 	count := v.NumField()
 	nodes := make([]*Node, 0, count)
 	for i := 0; i < count; i++ {
-		child, err := structFieldSerialize(v.Field(i), &(tinfo.fields[i]))
+		child, err := structFieldSerialize(v.Field(i), tinfo.fields[i])
 		if err != nil {
 			return nil, fmt.Errorf("%s >> %s", v.Type(), err)
 		}
@@ -63,7 +63,7 @@ func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 
 func structDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 
-	tinfo, err := getTypeInfo(v.Type())
+	tinfo, err := tinfoMap.getTypeInfo(v.Type())
 	if err != nil {
 		return err
 	}
@@ -83,7 +83,7 @@ func structDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 		if field.CanAddr() {
 			field = field.Addr()
 		}
-		err := structFieldDeserialize(nodes, field, &(tinfo.fields[i]))
+		err := structFieldDeserialize(nodes, field, tinfo.fields[i])
 		if err != nil {
 			return fmt.Errorf("%s >> %s", v.Type(), err)
 		}
