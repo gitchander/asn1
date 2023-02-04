@@ -8,7 +8,6 @@ import (
 
 	"github.com/gitchander/asn1/der/utils/date"
 	"github.com/gitchander/asn1/der/utils/random"
-	// "github.com/toelsiba/date"
 )
 
 // YYMMDDhhmmZ
@@ -32,8 +31,8 @@ func appendUTCTime(data []byte, t time.Time) ([]byte, error) {
 
 	year, month, day := t.Date()
 
-	shortYear := yearCollapse(year)
-	if shortYear == -1 {
+	shortYear, ok := yearCollapse(year)
+	if !ok {
 		return nil, fmt.Errorf("bad convert time to UTCTime: invalid year(%d)", year)
 	}
 	data = appendTwoDigits(data, shortYear)
@@ -71,11 +70,12 @@ func appendUTCTime(data []byte, t time.Time) ([]byte, error) {
 func parseUTCTime(data []byte) (time.Time, []byte, error) {
 
 	var err error
+	var zv time.Time
 
 	ds := make([]int, 6)
 	data, err = parseTwoDigitsSeries(data, ds)
 	if err != nil {
-		return time.Time{}, nil, err
+		return zv, nil, err
 	}
 
 	var (
@@ -84,7 +84,10 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 		day       = ds[2]
 	)
 
-	year := yearExpand(shortYear)
+	year, ok := yearExpand(shortYear)
+	if !ok {
+		return zv, nil, errors.New("parse UTCTime: invalid year expand")
+	}
 
 	var (
 		hour = ds[3]
@@ -93,7 +96,7 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 	)
 
 	if len(data) < 1 {
-		return time.Time{}, nil, errors.New("parse UTCTime: insufficient data length")
+		return zv, nil, errors.New("parse UTCTime: insufficient data length")
 	}
 
 	b := data[0]
@@ -109,13 +112,13 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 	case '+':
 		negative = false
 	default:
-		return time.Time{}, nil, fmt.Errorf("parse UTCTime: invalid character %q", b)
+		return zv, nil, fmt.Errorf("parse UTCTime: invalid character %q", b)
 	}
 
 	ds = make([]int, 2)
 	data, err = parseTwoDigitsSeries(data, ds)
 	if err != nil {
-		return time.Time{}, nil, err
+		return zv, nil, err
 	}
 	offsetMinutes := int(ds[0])*60 + int(ds[1])
 	if negative {
@@ -123,6 +126,7 @@ func parseUTCTime(data []byte) (time.Time, []byte, error) {
 	}
 
 	const timeInLocal = true
+
 	if timeInLocal {
 		t := time.Date(year, month, day, hour, min, sec, 0, time.UTC)
 		t = t.Add(time.Minute * time.Duration(-offsetMinutes))
@@ -148,12 +152,12 @@ func parseTwoDigits(data []byte) (int, []byte) {
 		return -1, data
 	}
 
-	hi, ok := byteToDigit(data[0])
+	hi, ok := charToDigit(data[0])
 	if !ok {
 		return -1, data
 	}
 
-	lo, ok := byteToDigit(data[1])
+	lo, ok := charToDigit(data[1])
 	if !ok {
 		return -1, data
 	}
@@ -222,6 +226,8 @@ func UTCTimeSerialize(t time.Time, params ...Parameter) (*Node, error) {
 
 func UTCTimeDeserialize(n *Node, params ...Parameter) (time.Time, error) {
 
+	var zv time.Time
+
 	class := CLASS_CONTEXT_SPECIFIC
 	tag, ok := getTagByParams(params)
 	if !ok {
@@ -231,35 +237,35 @@ func UTCTimeDeserialize(n *Node, params ...Parameter) (time.Time, error) {
 
 	err := CheckNode(n, class, tag)
 	if err != nil {
-		return time.Time{}, err
+		return zv, err
 	}
 
 	return n.GetUTCTime()
 }
 
 // year: [0..99]
-func yearExpand(year int) int {
+func yearExpand(year int) (int, bool) {
 	if inInterval(year, 0, 50) {
-		return year + 2000
+		return year + 2000, true
 	}
 	if inInterval(year, 50, 100) {
-		return year + 1900
+		return year + 1900, true
 	}
-	return -1
+	return 0, false
 }
 
 // year: [1950..2049]
-func yearCollapse(year int) int {
+func yearCollapse(year int) (int, bool) {
 	if inInterval(year, 2000, 2050) {
-		return year - 2000
+		return year - 2000, true
 	}
 	if inInterval(year, 1950, 2000) {
-		return year - 1900
+		return year - 1900, true
 	}
-	return -1
+	return 0, false
 }
 
-// Value a is in [min..max)
+// Value 'a' is in [min..max)
 func inInterval(a int, min, max int) bool {
 	return (min <= a) && (a < max)
 }

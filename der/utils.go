@@ -1,6 +1,7 @@
 package der
 
 import (
+	"fmt"
 	"strconv"
 )
 
@@ -17,20 +18,16 @@ const (
 	minInt  = -maxInt - 1
 )
 
-func byteIsDigit(b byte) bool {
-	return ('0' <= b) && (b <= '9')
-}
-
-func byteToDigit(b byte) (digit int, ok bool) {
-	if byteIsDigit(b) {
-		return int(b - '0'), true
+func charToDigit(char byte) (digit int, ok bool) {
+	if ('0' <= char) && (char <= '9') {
+		return int(char - '0'), true
 	}
 	return 0, false
 }
 
-func digitToChar(digit int) (b byte, ok bool) {
+func digitToChar(digit int) (char byte, ok bool) {
 	if (0 <= digit) && (digit <= 9) {
-		return byte('0' + digit), true
+		return byte(digit + '0'), true
 	}
 	return 0, false
 }
@@ -47,4 +44,15 @@ func parseInt(s string) (int, error) {
 
 func newInt(a int) *int {
 	return &a
+}
+
+func not(a bool) bool {
+	return !a
+}
+
+func checkHaveWantInt(name string, have, want int) error {
+	if have != want {
+		return fmt.Errorf("invalid (%s): have %d, want %d", name, have, want)
+	}
+	return nil
 }

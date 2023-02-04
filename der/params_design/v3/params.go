@@ -78,8 +78,6 @@ func Tag(tag int) *ParamsBuilder {
 	}
 }
 
-//----------------------------------------------------------------
-
 func (pb *ParamsBuilder) Name(name string) *ParamsBuilder {
 	pb.params.Name = opt.String(name)
 	return pb

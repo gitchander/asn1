@@ -22,7 +22,7 @@ func classToString(class int) string {
 	case CLASS_PRIVATE:
 		return "Private"
 	default:
-		return fmt.Sprintf("Class(%d)", class)
+		return fmt.Sprintf("%s(%d)", "Class", class)
 	}
 }
 
@@ -37,7 +37,7 @@ func classShortName(class int) string {
 	case CLASS_PRIVATE:
 		return "PR"
 	default:
-		return fmt.Sprintf("CLASS(%d)", class)
+		return fmt.Sprintf("%s(%d)", "CLASS", class)
 	}
 }
 

@@ -109,7 +109,6 @@ func parseFIParamInt(paramName string, s string) (int, error) {
 	return x, nil
 }
 
-//------------------------------------------------------------------------------
 type typeInfo struct {
 	fields []*fieldInfo
 }
