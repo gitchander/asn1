@@ -15,9 +15,11 @@ func structSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 	count := v.NumField()
 	nodes := make([]*Node, 0, count)
 	for i := 0; i < count; i++ {
-		child, err := structFieldSerialize(v.Field(i), tinfo.fields[i])
+		fi := tinfo.fields[i]
+		child, err := structFieldSerialize(v.Field(i), fi)
 		if err != nil {
-			return nil, fmt.Errorf("%s >> %s", v.Type(), err)
+			return nil, fmt.Errorf("struct <%s> field[%d] %s serialize error: %w",
+				v.Type(), i, fieldInfoToString(fi), err)
 		}
 		if child != nil {
 			nodes = append(nodes, child)
@@ -32,7 +34,7 @@ func structSerialize(v reflect.Value, params ...Parameter) (*Node, error) {
 func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 
 	if finfo.tag == nil {
-		return nil, fmt.Errorf("field %s hasn't tag", fieldInfoToString(finfo))
+		return nil, fmt.Errorf("field hasn't tag")
 	}
 	tag := *(finfo.tag)
 
@@ -40,7 +42,7 @@ func structFieldSerialize(v reflect.Value, finfo *fieldInfo) (*Node, error) {
 		if finfo.optional {
 			return nil, nil
 		}
-		return nil, fmt.Errorf("field %s value is nil, field must be optional", fieldInfoToString(finfo))
+		return nil, fmt.Errorf("value is nil, field must be optional")
 	}
 
 	if finfo.explicit {
@@ -79,13 +81,15 @@ func structDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 	}
 
 	for i := 0; i < v.NumField(); i++ {
+		fi := tinfo.fields[i]
 		field := v.Field(i)
 		if field.CanAddr() {
 			field = field.Addr()
 		}
-		err := structFieldDeserialize(nodes, field, tinfo.fields[i])
+		err := structFieldDeserialize(nodes, field, fi)
 		if err != nil {
-			return fmt.Errorf("%s >> %s", v.Type(), err)
+			return fmt.Errorf("struct <%s> field[%d] %s deserialize error: %w",
+				v.Type(), i, fieldInfoToString(fi), err)
 		}
 	}
 
@@ -95,7 +99,7 @@ func structDeserialize(v reflect.Value, n *Node, params ...Parameter) error {
 func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) error {
 
 	if finfo.tag == nil {
-		return fmt.Errorf("field %s hasn't tag", fieldInfoToString(finfo))
+		return fmt.Errorf("field hasn't tag")
 	}
 	tag := *(finfo.tag)
 
@@ -105,7 +109,7 @@ func structFieldDeserialize(nodes []*Node, v reflect.Value, finfo *fieldInfo) er
 			valueSetZero(v)
 			return nil
 		}
-		return fmt.Errorf("field %s value is nil, field must be optional", fieldInfoToString(finfo))
+		return fmt.Errorf("value is nil, field must be optional")
 	}
 
 	if finfo.explicit {
